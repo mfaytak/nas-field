@@ -16,9 +16,9 @@
 
   <meta name="generator" content="pandoc" />
 
-  <meta name="author" content="23 March 2022  UC Shattuck Plaza" />
+  <meta name="author" content="13 December 2022  UC Shattuck Plaza" />
 
-  <title>Phonetic annotation: the basics and the not-so-basics [and airflow]</title>
+  <title>Annotation: waveforms, spectrograms, airflow</title>
 
   <style type="text/css">
 
@@ -46,11 +46,11 @@
 
 <div class="slide titlepage">
 
-  <h1 class="title">Phonetic annotation: the basics and the not-so-basics [and airflow]</h1>
+  <h1 class="title">Annotation: waveforms, spectrograms, airflow</h1>
 
   <p class="author">
 
-23 March 2022<br/> UC Shattuck Plaza
+13 December 2022<br/> UC Shattuck Plaza
 
   </p>
 
@@ -76,15 +76,27 @@
 
 </ul>
 
+<p>Partial automation of annotation</p>
+
 <p>Troubleshooting the airflow records</p>
+
+<ul>
+
+<li>Good records</li>
+
+<li>Bad records</li>
+
+<li>How to spot them</li>
+
+</ul>
 
 </div>
 
-<div id="the-task" class="slide section level2">
+<div id="the-annotation-task" class="title-slide slide section level1"><h1>The annotation task</h1></div><div id="the-task" class="slide section level2">
 
 <h1>The task</h1>
 
-<p>The task of annotation is basically assigning <strong>text labels</strong> to <strong>bounded spans</strong> of an audio file,</p>
+<p>The task of annotation is basically assigning <strong>text labels</strong> to <strong>bounded spans</strong> of an audio file</p>
 
 <ul>
 
@@ -96,13 +108,13 @@
 
 </ul>
 
-</div>
+<p>These bounded spans (intervals) of the file correspond to segments or subsegments, depending on the nature of RQs</p>
 
-<div id="the-task-1" class="slide section level2">
+</div><div id="the-task-1" class="slide section level2">
 
 <h1>The task</h1>
 
-<p>This is <strong>different</strong> from the annotation task given to you in 2019</p>
+<p>This is <strong>very different</strong> from the annotation task given to you in 2019</p>
 
 <ul>
 
@@ -116,13 +128,13 @@
 
 </ul></li>
 
-<li>We are not dedicating specific tiers to each
+<li>We are not dedicating specific tiers to each airflow channel
 
 <ul>
 
-<li>Just segments</li>
+<li>Just have a tier for segments</li>
 
-<li>Tiers for subsegments if desired (flexible)</li>
+<li>Tiers for subsegments if desired (flexible, RQ-dependent)</li>
 
 </ul></li>
 
@@ -130,17 +142,21 @@
 
 </ul>
 
-<p>Pros: less manual annotation by fieldworkers; more time to dedicate to other things</p>
+<p>There are pros and cons to this change:</p>
 
-<p>Cons: segmentation becomes very important, must be fairly systematic</p>
+<ul>
 
-</div>
+<li>Less manual annotation by fieldworkers; more time to dedicate to other things, more flexible</li>
 
-<div id="your-work-setting" class="slide section level2">
+<li>Consistent segmentation becomes very important, must be systematic to a greater degree</li>
+
+</ul>
+
+</div><div id="your-work-setting" class="slide section level2">
 
 <h1>Your work setting</h1>
 
-<p>We are assuming some aspects of your work setting and inputs/outputs, for quality purposes:</p>
+<p>For quality and consistency purposes:</p>
 
 <ul>
 
@@ -168,9 +184,7 @@
 
 </ul>
 
-</div>
-
-<div id="use-the-entire-file" class="slide section level2">
+</div><div id="use-the-entire-file" class="slide section level2">
 
 <h1>Use the <em>entire</em> file</h1>
 
@@ -184,6 +198,8 @@
 
 <li><strong>Oral airflow</strong> may be more reliable than the audio record for the timing of events for fricatives, stops, and affricates</li>
 
+<li>You can check that your recordings look OK and set them aside if not</li>
+
 </ul>
 
 <p>But be careful not to draw boundaries solely based on <strong>nasal airflow</strong></p>
@@ -192,7 +208,7 @@
 
 <li>Using nasal airflow risks circularity</li>
 
-<li>“I defined nasal vowels as vowel intervals with high nasal airflow” … “we find that nasal vowels have increased airflow”
+<li>“I defined nasal vowels as those vowel intervals with high nasal airflow” … “we find that nasal vowels have higher nasal airflow than oral vowels”
 
 <ul>
 
@@ -224,7 +240,7 @@
 
 </ul>
 
-<p><img src="./assets/media/praat-Sound.png" width="600"></p>
+<p><img src="./assets/media/praat-Sound.png" width="700"></p>
 
 </div><div id="saving-from-the-objects-window" class="slide section level2">
 
@@ -240,7 +256,7 @@
 
 </ul>
 
-<p><img src="./assets/media/praat-save-Sound.png" width="600"></p>
+<p><img src="./assets/media/praat-save-Sound.png" width="700"></p>
 
 </div><div id="accessing-the-manual" class="slide section level2">
 
@@ -264,7 +280,7 @@
 
 </ul>
 
-<p><img src="./assets/media/praat-view-edit.png" width="600"></p>
+<p><img src="./assets/media/praat-view-edit.png" width="700"></p>
 
 </div><div id="textgrids" class="slide section level2">
 
@@ -288,25 +304,21 @@
 
 <ul>
 
-<li>TextGrids are automatically the same length as their associated Sounds</li>
+<li>TextGrids are automatically the same duration as their associated Sounds</li>
 
 <li>Intervals have a start time, end time, and label</li>
-
-</ul>
-
-<p>[picture illustrating]</p>
-
-<ul>
 
 <li>Points have a time and a label</li>
 
 </ul>
 
-<p>[picture illustrating]</p>
+<p><img src="./assets/media/tg-tier-types.png" width="700"></p>
 
 <ul>
 
-<li>Both tier types can be written directly into</li>
+<li>Both tier types can be <em>written</em> directly into</li>
+
+<li>Both accept IPA characters</li>
 
 </ul>
 
@@ -329,30 +341,6 @@
 <ul>
 
 <li>Exceptions: flaps or stop bursts, which are more or less instantaneous</li>
-
-</ul>
-
-</div><div id="automatic-creation-of-tgs" class="slide section level2">
-
-<h1>Automatic creation of TGs</h1>
-
-<p>There are any number of basic Praat <strong>scripts</strong> out there to automatically create TextGrids with a certain tier structure</p>
-
-<ul>
-
-<li>I will demonstrate one such script here:
-
-<ul>
-
-<li>Look at each WAV name in a folder</li>
-
-<li>If no TG exists in a designated location, create it there with specified tier structure</li>
-
-<li>Open the resulting TG and</li>
-
-</ul></li>
-
-<li>Copy-paste <a href="https://github.com/mfaytak/ultramisc/blob/master/scripts/file-management/ultra_labeler.praat">the code</a> into a text file and save as [some name].praat</li>
 
 </ul>
 
@@ -576,9 +564,9 @@
 
 <p>Visible as <strong>voice bar</strong> at bottom of spectrogram, and as periodic (repeating, regular) motion in waveform</p>
 
-<p><img src="./assets/media/tg-voice-bar.png" width="600"></p>
+<p><img src="./assets/media/tg-voice-bar.png" width="700"></p>
 
-<p><img src="./assets/media/tg-voice-bar2.png" width="350"></p>
+<p><img src="./assets/media/tg-voice-bar2.png" width="700"></p>
 
 </div><div id="partial-voicing" class="slide section level2">
 
@@ -594,7 +582,7 @@
 
 </ul>
 
-<p><img src="./assets/media/tg-partial-voicing.png" width="600"></p>
+<p><img src="./assets/media/tg-partial-voicing.png" width="700"></p>
 
 <ul>
 
@@ -612,11 +600,11 @@
 
 <li>Echo can resemble a voicing bar extending into a following stop or fricative</li>
 
-<li>The token of /kʷ/ below is not substantially voiced, for example</li>
+<li>The token of /kʷ/ (from Piaroa) below is not substantially voiced, for example</li>
 
 </ul>
 
-<p><img src="./assets/media/echo-voice.png" width="600"></p>
+<p><img src="./assets/media/echo-voice.png" width="700"></p>
 
 </div><div id="glottal-stop-and-creak" class="slide section level2">
 
@@ -654,7 +642,7 @@
 
 </ul>
 
-<p><img src="./assets/media/tg-formants.png" width="650"></p>
+<p><img src="./assets/media/tg-formants.png" width="700"></p>
 
 </div><div id="oral-vs.-nasalized-vowels" class="slide section level2">
 
@@ -670,7 +658,7 @@
 
 </ul>
 
-<p><img src="./assets/media/092-nas-v-spec.png" width="650"></p>
+<p><img src="./assets/media/092-nas-v-spec.png" width="700"></p>
 
 </div><div id="formant-discontinuities" class="slide section level2">
 
@@ -694,7 +682,7 @@
 
 <p>Abrupt loss of formant intensity visible in spectrogram; major dip in intensity in waveform, formants “smudge”, effective F1 visible (and not much else, unless very intense)</p>
 
-<p><img src="./assets/media/tg-nasal.png" width="600"></p>
+<p><img src="./assets/media/tg-nasal.png" width="700"></p>
 
 </div><div id="central-approximants" class="slide section level2">
 
@@ -708,7 +696,7 @@
 
 </ul>
 
-<p><img src="./assets/media/tg-central-approx.png" width="600"></p>
+<p><img src="./assets/media/tg-central-approx.png" width="700"></p>
 
 </div><div id="laterals" class="slide section level2">
 
@@ -718,7 +706,7 @@
 
 <p>“Dark” [l] may show a more gradual change in values (and decrease in intensity) like a central approximant</p>
 
-<p><img src="./assets/media/tg-laterals.png" width="650"></p>
+<p><img src="./assets/media/tg-laterals.png" width="700"></p>
 
 </div><div id="plosives" class="slide section level2">
 
@@ -744,7 +732,7 @@
 
 </ul>
 
-<p><img src="./assets/media/tg-stop-events.png" width="600"></p>
+<p><img src="./assets/media/tg-stop-events.png" width="700"></p>
 
 </div><div id="plosive-voicing" class="slide section level2">
 
@@ -754,11 +742,11 @@
 
 <p>More commonly, voiced plosives are somewhat devoiced (recap)</p>
 
-<p><img src="./assets/media/tg-partial-voicing.png" width="600"></p>
+<p><img src="./assets/media/tg-partial-voicing.png" width="700"></p>
 
 <p>Unvoiced plosives can also gain some <strong>carryover</strong> voicing from the preceding vowel: voicing not “shut off” quickly enough</p>
 
-<p><img src="./assets/media/tg-stop-events.png" width="600"></p>
+<p><img src="./assets/media/tg-stop-events.png" width="700"></p>
 
 <ul>
 
@@ -772,11 +760,17 @@
 
 <p>Prenasalized stops (to take one possible example) may show oral and nasal closure portions; the transition between these can be spotted with some effort</p>
 
-<p><img src="./assets/media/tg-prenas-stop1.png" width="600"></p>
+<ul>
+
+<li>These (from Mundabli, Cameroon) may or may not be typical of “Amazonian” partially nasalized stops, but they provide us with a starting point</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-prenas-stop1.png" width="700"></p>
 
 <p>Another example:</p>
 
-<p><img src="./assets/media/tg-prenas-stop2.png" width="600"></p>
+<p><img src="./assets/media/tg-prenas-stop2.png" width="700"></p>
 
 </div><div id="affricates" class="slide section level2">
 
@@ -792,7 +786,7 @@
 
 </ul>
 
-<p><img src="./assets/media/tg-affricate-events.png" width="600"></p>
+<p><img src="./assets/media/tg-affricate-events.png" width="700"></p>
 
 </div><div id="trills-and-taps" class="slide section level2">
 
@@ -808,7 +802,7 @@
 
 </ul>
 
-<p><img src="./assets/media/tg-trill-flap.png" width="550"></p>
+<p><img src="./assets/media/tg-trill-flap.png" width="700"></p>
 
 </div><div id="trills-and-taps-1" class="slide section level2">
 
@@ -824,7 +818,121 @@
 
 </ul>
 
-<p><img src="./assets/media/tg-trill-flap2.png" width="550"></p>
+<p><img src="./assets/media/tg-trill-flap2.png" width="700"></p>
+
+</div>
+
+<div id="automation" class="title-slide slide section level1"><h1>Automation</h1></div><div id="automatic-creation-of-tgs" class="slide section level2">
+
+<h1>Automatic creation of TGs</h1>
+
+<p>There are any number of basic Praat <strong>scripts</strong> out there to automatically create TextGrids with a certain tier structure</p>
+
+<ul>
+
+<li>I will demonstrate one such <strong>auto-opener</strong> script here:
+
+<ul>
+
+<li>Look at each WAV name in a folder</li>
+
+<li>If no TG exists in a designated location, create it there with specified tier structure</li>
+
+<li>Open the resulting TG and</li>
+
+</ul></li>
+
+<li>Copy-paste <a href="https://github.com/mfaytak/ultramisc/blob/master/scripts/file-management/ultra_labeler.praat">the code</a> into a text file and save as [some name].praat</li>
+
+</ul>
+
+</div><div id="forced-alignment" class="slide section level2">
+
+<h1>Forced alignment</h1>
+
+<p>It is, in fact, also possible to automatically annotate sound files through a process called <strong>forced alignment</strong>, but the required materials may not exist for all project languages</p>
+
+<ul>
+
+<li>I recommend the <a href="https://montreal-forced-aligner.readthedocs.io/en/latest/">Montreal Forced Aligner</a> (MFA), which can be trained on your data set and then run on it</li>
+
+</ul>
+
+<p>You need:</p>
+
+<ul>
+
+<li>An <em>orthographic transcript</em> or <em>phonemic transcript</em> for every item, aligned to the audio with a one-tier TextGrid like the one below
+
+<ul>
+
+<li>This assumes there is some audio you don’t want aligned, which isn’t marked off on this TG.</li>
+
+</ul></li>
+
+<li>A <em>pronunciation dictionary</em> which clarifies how to map every word occurring in the data set to a string of phonemes</li>
+
+<li>A lot of data: the larger the data set, the more accurate the alignment that results</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-mfa-prep.png" width="700"></p>
+
+</div><div id="forced-alignment-1" class="slide section level2">
+
+<h1>Forced alignment</h1>
+
+<p>Pros:</p>
+
+<ul>
+
+<li>Saves time (though not all of it)</li>
+
+<li>Reduced human error/typos in labels</li>
+
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+
+<li>Doesn’t annotate subsegments</li>
+
+<li>Extra processing steps</li>
+
+<li>Decisions about how to mark labels can be complicated</li>
+
+<li>Still need to make a TG (though you can use the auto-opener script for this)</li>
+
+<li>Needs to be hand-corrected (accuracy isn’t great)</li>
+
+</ul>
+
+</div><div id="using-forced-alignment" class="slide section level2">
+
+<h1>Using forced alignment</h1>
+
+<p>A possible workflow:</p>
+
+<ol style="list-style-type: decimal">
+
+<li>Auto-create “guardrail” TGs such as the one below, using the auto-opener</li>
+
+</ol>
+
+<p><img src="./assets/media/tg-mfa-prep.png" width="700"></p>
+
+<ol start="2" style="list-style-type: decimal">
+
+<li>Create dictionary of all words in your stimuli, plus any other words which are not in stimuli but which are uttered</li>
+
+<li>Run MFA on <em>all speakers at once</em> (can take a few hours)</li>
+
+<li>Hand-correct the resulting TGs (again using the auto-opener)</li>
+
+</ol>
+
+<p>… or you can just annotate by hand. Still, if you are interested, let me know, and my RA next semester may be able to help</p>
 
 </div>
 
@@ -862,7 +970,7 @@
 
 <p>An example: Kawahiva [ɛdʒupĩn] ‘climb!’</p>
 
-<p><img src="./assets/media/traces-poor-fit.png" width="550"></p>
+<p><img src="./assets/media/traces-poor-fit.png" width="700"></p>
 
 </div><div id="flow-separation-problems" class="slide section level2">
 
@@ -878,7 +986,7 @@
 
 <p>An extreme example: Kawahiva [tata] ‘fire’:</p>
 
-<p><img src="./assets/media/traces-bad2.png" width="550"></p>
+<p><img src="./assets/media/traces-bad2.png" width="700"></p>
 
 </div><div id="flow-separation-problems-1" class="slide section level2">
 
@@ -894,7 +1002,7 @@
 
 </ul>
 
-<p><img src="./assets/media/traces-bad1.png" width="550"></p>
+<p><img src="./assets/media/traces-bad1.png" width="700"></p>
 
 <ul>
 
@@ -904,7 +1012,7 @@
 
 </ul>
 
-<p><img src="./assets/media/traces-good1.png" width="550"></p>
+<p><img src="./assets/media/traces-good1.png" width="700"></p>
 
 </div><div id="scale-problems" class="slide section level2">
 
@@ -930,6 +1038,14 @@
 
 <h1>More examples (in Praat)</h1>
 
+<p>Note that in Praat, we expect <strong>pulsing</strong> of oral and nasal flow signals to be visible</p>
+
+<ul>
+
+<li>Due to voicing’s effect on flow out of the lungs (less flow when vocal folds close, more when open)</li>
+
+</ul>
+
 <p>Kubeo all-nasal [mẽnẽmẽ] ‘tree sp.’</p>
 
 <ul>
@@ -940,7 +1056,7 @@
 
 </ul>
 
-<p><img src="./assets/media/thiago-all-nasal.png" width="550"></p>
+<p><img src="./assets/media/thiago-all-nasal.png" width="700"></p>
 
 </div><div id="more-examples-in-praat-1" class="slide section level2">
 
@@ -958,7 +1074,7 @@
 
 </ul>
 
-<p><img src="./assets/media/thiago-all-oral.png" width="550"></p>
+<p><img src="./assets/media/thiago-all-oral.png" width="700"></p>
 
 </div><div id="more-examples-in-praat-2" class="slide section level2">
 
@@ -974,7 +1090,7 @@
 
 </ul>
 
-<p><img src="./assets/media/thiago-mixed.png" width="550"></p>
+<p><img src="./assets/media/thiago-mixed.png" width="700"></p>
 
 </div>
 

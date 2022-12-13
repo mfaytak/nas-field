@@ -1,6 +1,7 @@
-% Phonetic annotation: the basics and the not-so-basics [and airflow] 
-% 23 March 2022<br/> UC Shattuck Plaza
+% Annotation: waveforms, spectrograms, airflow
+% 13 December 2022<br/> UC Shattuck Plaza
 % Matthew Faytak (Univ. at Buffalo)<br/>
+
 
 ## Overview
 
@@ -11,38 +12,48 @@ Annotation in Praat
 * Choosing (and regularizing) labels
 * Miscellaneous tips
 
+Partial automation of annotation
+
 Troubleshooting the airflow records
 
+* Good records
+* Bad records
+* How to spot them
+
+# The annotation task
 
 ## The task
 
-The task of annotation is basically assigning **text labels** to **bounded spans** of an audio file, 
+The task of annotation is basically assigning **text labels** to **bounded spans** of an audio file
 
 * Without these, we can't do any kind of analysis
 * Scripts generally can't find labels or boundaries *for* us 
 * We'll discuss *forced alignment* at the end, which can do some of these things but requires very specific pre-conditions
 
+These bounded spans (intervals) of the file correspond to segments or subsegments, depending on the nature of RQs
+
 
 ## The task
 
-This is **different** from the annotation task given to you in 2019
+This is **very different** from the annotation task given to you in 2019
 
 * We are not manually annotating oral/nasal airflow maxima or minima (etc)
 	* This will be left to scripts 
 	* Some of it will be replaced with flow volume/rate means or trajectory modeling
-* We are not dedicating specific tiers to each 
-	* Just segments 
-	* Tiers for subsegments if desired (flexible)
+* We are not dedicating specific tiers to each airflow channel
+	* Just have a tier for segments 
+	* Tiers for subsegments if desired (flexible, RQ-dependent)
 * No point tiers (at least not required)
 
-Pros: less manual annotation by fieldworkers; more time to dedicate to other things
+There are pros and cons to this change:
 
-Cons: segmentation becomes very important, must be fairly systematic
+* Less manual annotation by fieldworkers; more time to dedicate to other things, more flexible
+* Consistent segmentation becomes very important, must be systematic to a greater degree
 
 
 ## Your work setting
 
-We are assuming some aspects of your work setting and inputs/outputs, for quality purposes:
+For quality and consistency purposes:
 
 * Use **headphones** to listen
 * Use your ears *and* your instrumental displays to segment
@@ -60,11 +71,12 @@ We suggest using **all channels** of the recording (including airflow) to annota
 * The airflow masks exert an overall "muffling" effect on the acoustic signal
 * Reduced amplitude of high-frequency energy: less energy in fricatives, affricates, stop bursts
 * **Oral airflow** may be more reliable than the audio record for the timing of events for fricatives, stops, and affricates
+* You can check that your recordings look OK and set them aside if not
 
 But be careful not to draw boundaries solely based on **nasal airflow**
 
 * Using nasal airflow risks circularity
-* "I defined nasal vowels as vowel intervals with high nasal airflow" ... "we find that nasal vowels have increased airflow"
+* "I defined nasal vowels as those vowel intervals with high nasal airflow" ... "we find that nasal vowels have higher nasal airflow than oral vowels"
 	* Of course they do!
 
 
@@ -80,7 +92,7 @@ Praat obligatorily interacts with objects through *selection*
 
 * For example, the following options become available if you open a Sound and select it
 
-<img src="./assets/media/praat-Sound.png" width="600">
+<img src="./assets/media/praat-Sound.png" width="700">
 
 
 ## Saving from the Objects window
@@ -90,7 +102,7 @@ The Objects window stores objects in memory but doesn't save them to your system
 * In nearly all cases, you will be creating, editing, and saving TextGrid objects rather than Sounds
 * More on TextGrids in a bit
 
-<img src="./assets/media/praat-save-Sound.png" width="600">
+<img src="./assets/media/praat-save-Sound.png" width="700">
 
 
 ## Accessing the manual
@@ -108,7 +120,7 @@ If you select (an) editable object(s) and choose "View and Edit", the window whe
 
 * Here, I've selected a matching Sound and TextGrid (which already contains some annotations)
 
-<img src="./assets/media/praat-view-edit.png" width="600">
+<img src="./assets/media/praat-view-edit.png" width="700">
 
 
 ## TextGrids
@@ -127,9 +139,10 @@ TextGrids contain **tiers**, which in turn contain **intervals** or **points**
 * Intervals have a start time, end time, and label
 * Points have a time and a label
 
-<img src="./assets/media/tg-tier-types.png" width="600">
+<img src="./assets/media/tg-tier-types.png" width="700">
 
-* Both tier types can be written directly into
+* Both tier types can be *written* directly into
+* Both accept IPA characters 
 
 
 ## Points vs. intervals
@@ -142,17 +155,6 @@ The two kinds of tiers reflect different types of **audio selection**
 Generally, in this project, we are interested in **ranges** corresponding to particular articulatory states, so we mostly favor using intervals
 
 * Exceptions: flaps or stop bursts, which are more or less instantaneous
-
-
-## Automatic creation of TGs
-
-There are any number of basic Praat **scripts** out there to automatically create TextGrids with a certain tier structure
-
-* I will demonstrate one such script here:
-	* Look at each WAV name in a folder
-	* If no TG exists in a designated location, create it there with specified tier structure
-	* Open the resulting TG and 
-* Copy-paste <a href="https://github.com/mfaytak/ultramisc/blob/master/scripts/file-management/ultra_labeler.praat">the code</a> into a text file and save as [some name].praat
 
 
 ## Editing TGs
@@ -277,9 +279,9 @@ If you are unsure of how you're doing, annotate a small portion of the data and 
 
 Visible as **voice bar** at bottom of spectrogram, and as periodic (repeating, regular) motion in waveform
 
-<img src="./assets/media/tg-voice-bar.png" width="600">
+<img src="./assets/media/tg-voice-bar.png" width="700">
 
-<img src="./assets/media/tg-voice-bar2.png" width="350">
+<img src="./assets/media/tg-voice-bar2.png" width="700">
 
 
 ## Partial voicing
@@ -289,7 +291,7 @@ Segments can be partially voiced, with the voicing tending to be "carryover"
 * "Carryover" voicing intervocalically, from previous vowel
 * Partial devoicing (pictured below) towards end of a voiced closure
 
-<img src="./assets/media/tg-partial-voicing.png" width="600">
+<img src="./assets/media/tg-partial-voicing.png" width="700">
 
 * You might annotate the timing of voicing as a *subsegmental* property to determine effect of nasality on voicing or vice-versa
 
@@ -299,9 +301,9 @@ Segments can be partially voiced, with the voicing tending to be "carryover"
 Don't be fooled by echo, especially in very reverberant recordings and when low vowels or other intense sounds echo
 
 * Echo can resemble a voicing bar extending into a following stop or fricative
-* The token of /kʷ/ below is not substantially voiced, for example
+* The token of /kʷ/ (from Piaroa) below is not substantially voiced, for example
 
-<img src="./assets/media/echo-voice.png" width="600">
+<img src="./assets/media/echo-voice.png" width="700">
 
 
 ## Glottal stop and creak
@@ -322,7 +324,7 @@ Vowels are easily identified by their clear, high-amplitude (dark) **formats** w
 * First and second formants (F1-F2) are the major determinants of vowel quality
 * Some higher formants can be weaker (lighter) for especially constricted vowels
 
-<img src="./assets/media/tg-formants.png" width="650">
+<img src="./assets/media/tg-formants.png" width="700">
 
 
 ## Oral vs. nasal(ized) vowels
@@ -332,7 +334,7 @@ Compared to oral vowels, nasal(ized) vowels have more "smudging" of formants; no
 * (Acoustically, this is due to "antiformants" that overlap with formants and partly cancel them out)
 * A very smudged "effective F1" results
 
-<img src="./assets/media/092-nas-v-spec.png" width="650">
+<img src="./assets/media/092-nas-v-spec.png" width="700">
 
 
 
@@ -349,7 +351,7 @@ Many other phones have clear formants as well, but cause **discontinuities** in 
 
 Abrupt loss of formant intensity visible in spectrogram; major dip in intensity in waveform, formants "smudge", effective F1 visible (and not much else, unless very intense)
 
-<img src="./assets/media/tg-nasal.png" width="600">
+<img src="./assets/media/tg-nasal.png" width="700">
 
 
 ## Central approximants
@@ -358,7 +360,7 @@ Gradual decrease and then rise in amplitude, formants deflect towards the approx
 
 * Segmenting these from neighboring vowels can be tricky; best to go by ear and pick the "halfway" point
 
-<img src="./assets/media/tg-central-approx.png" width="600">
+<img src="./assets/media/tg-central-approx.png" width="700">
 
 
 ## Laterals
@@ -367,7 +369,7 @@ Most non-"dark" [l] have a sharp discontinuity in formants: formants shift; ampl
 
 "Dark" [l] may show a more gradual change in values (and decrease in intensity) like a central approximant
 
-<img src="./assets/media/tg-laterals.png" width="650">
+<img src="./assets/media/tg-laterals.png" width="700">
 
 
 ## Plosives
@@ -380,7 +382,7 @@ Multiple articulatory events; annotate these together as the plosive or annotate
 	* Aspiration ("on" following vowel, but should be annotated as part of the consonant)
 * Release ends when vowel's normal formant structure and voicing begin
 
-<img src="./assets/media/tg-stop-events.png" width="600">
+<img src="./assets/media/tg-stop-events.png" width="700">
 
 
 ## Plosive voicing
@@ -389,11 +391,11 @@ Plosives can be **prevoiced**, with their voicing bar plainly visible even durin
 
 More commonly, voiced plosives are somewhat devoiced (recap)
 
-<img src="./assets/media/tg-partial-voicing.png" width="600">
+<img src="./assets/media/tg-partial-voicing.png" width="700">
 
 Unvoiced plosives can also gain some **carryover** voicing from the preceding vowel: voicing not "shut off" quickly enough
 
-<img src="./assets/media/tg-stop-events.png" width="600">
+<img src="./assets/media/tg-stop-events.png" width="700">
 
 
 * Voicing carryover (during closure)
@@ -403,11 +405,14 @@ Unvoiced plosives can also gain some **carryover** voicing from the preceding vo
 
 Prenasalized stops (to take one possible example) may show oral and nasal closure portions; the transition between these can be spotted with some effort
 
-<img src="./assets/media/tg-prenas-stop1.png" width="600">
+* These (from Mundabli, Cameroon) may or may not be typical of "Amazonian" partially nasalized stops, but they provide us with a starting point
+
+<img src="./assets/media/tg-prenas-stop1.png" width="700">
 
 Another example:
 
-<img src="./assets/media/tg-prenas-stop2.png" width="600">
+<img src="./assets/media/tg-prenas-stop2.png" width="700">
+
 
 ## Affricates
 
@@ -416,7 +421,7 @@ Like plosives, there are multiple events that could be segmented
 * Similar to plosives with the addition of **frication** to release
 * Usually not worth separating from aspiration (or possible to do so)
 
-<img src="./assets/media/tg-affricate-events.png" width="600">
+<img src="./assets/media/tg-affricate-events.png" width="700">
 
 
 ## Trills and taps
@@ -426,7 +431,8 @@ Usually easy to segment: quick contacts (multiple for trills, single for flaps/t
 * Taps don't lend themselves too well to interval segmenting, since they are so short as to be sort of instantaneous
 * See the point tier below: brief closures between the tongue and palate
 
-<img src="./assets/media/tg-trill-flap.png" width="550">
+<img src="./assets/media/tg-trill-flap.png" width="700">
+
 
 ## Trills and taps
 
@@ -435,7 +441,67 @@ Both of these sounds can *fail*, however
 * Flaps can close incompletely (intensity dip still visible)
 * Trills can fail to start trilling (for aerodynamic reasons); approximant or fricative may result
 
-<img src="./assets/media/tg-trill-flap2.png" width="550">
+<img src="./assets/media/tg-trill-flap2.png" width="700">
+
+
+# Automation
+
+## Automatic creation of TGs
+
+There are any number of basic Praat **scripts** out there to automatically create TextGrids with a certain tier structure
+
+* I will demonstrate one such **auto-opener** script here:
+	* Look at each WAV name in a folder
+	* If no TG exists in a designated location, create it there with specified tier structure
+	* Open the resulting TG and 
+* Copy-paste <a href="https://github.com/mfaytak/ultramisc/blob/master/scripts/file-management/ultra_labeler.praat">the code</a> into a text file and save as [some name].praat
+
+
+## Forced alignment
+
+It is, in fact, also possible to automatically annotate sound files through a process called **forced alignment**, but the required materials may not exist for all project languages
+
+* I recommend the <a href="https://montreal-forced-aligner.readthedocs.io/en/latest/">Montreal Forced Aligner</a> (MFA), which can be trained on your data set and then run on it
+
+You need: 
+
+* An *orthographic transcript* or *phonemic transcript* for every item, aligned to the audio with a one-tier TextGrid like the one below
+	* This assumes there is some audio you don't want aligned, which isn't marked off on this TG. 
+* A *pronunciation dictionary* which clarifies how to map every word occurring in the data set to a string of phonemes
+* A lot of data: the larger the data set, the more accurate the alignment that results
+
+<img src="./assets/media/tg-mfa-prep.png" width="700">
+
+
+## Forced alignment
+
+Pros:
+
+* Saves time (though not all of it)
+* Reduced human error/typos in labels
+
+Cons:
+
+* Doesn't annotate subsegments
+* Extra processing steps
+* Decisions about how to mark labels can be complicated
+* Still need to make a TG (though you can use the auto-opener script for this)
+* Needs to be hand-corrected (accuracy isn't great)
+
+
+## Using forced alignment
+
+A possible workflow:
+
+1. Auto-create "guardrail" TGs such as the one below, using the auto-opener
+
+<img src="./assets/media/tg-mfa-prep.png" width="700">
+
+2. Create dictionary of all words in your stimuli, plus any other words which are not in stimuli but which are uttered
+3. Run MFA on *all speakers at once* (can take a few hours)
+4. Hand-correct the resulting TGs (again using the auto-opener)
+
+... or you can just annotate by hand. Still, if you are interested, let me know, and my RA next semester may be able to help
 
 
 # Airflow troubleshooting
@@ -459,7 +525,7 @@ Mask may not seal with face fully: sensors can't sense flow changes in this case
 
 An example: Kawahiva [ɛdʒupĩn] 'climb!'
 
-<img src="./assets/media/traces-poor-fit.png" width="550">
+<img src="./assets/media/traces-poor-fit.png" width="700">
 
 
 ## Flow separation problems
@@ -470,7 +536,7 @@ If you get **identical** flow for oral and nasal channels *during speech*, then 
 
 An extreme example: Kawahiva [tata] 'fire':
 
-<img src="./assets/media/traces-bad2.png" width="550">
+<img src="./assets/media/traces-bad2.png" width="700">
 
 
 ## Flow separation problems
@@ -480,12 +546,12 @@ A (probably) more typical example: Kawahiva [ɨtʃĩŋga] 'sand'
 * While not an *exact* copy, the channels are suspiciously similar
 * Spikes in nasal airflow apparently not timed to the [ŋg]
 
-<img src="./assets/media/traces-bad1.png" width="550">
+<img src="./assets/media/traces-bad1.png" width="700">
 
 * Good token, same word 
 * Spike in nasal flow, clear reduction in oral flow at the same time (during [ŋg])
 
-<img src="./assets/media/traces-good1.png" width="550">
+<img src="./assets/media/traces-good1.png" width="700">
 
 
 ## Scale problems
@@ -499,12 +565,16 @@ Make sure to look at *speech* when inspecting, and *only speech* (not breathing 
 
 ## More examples (in Praat)
 
+Note that in Praat, we expect **pulsing** of oral and nasal flow signals to be visible
+
+* Due to voicing's effect on flow out of the lungs (less flow when vocal folds close, more when open)
+
 Kubeo all-nasal [mẽnẽmẽ] 'tree sp.'  
 
 * Nasal airflow spikes during the nasal stops
 * Low, even oral airflow throughout (possibly a bad oral seal)
 
-<img src="./assets/media/thiago-all-nasal.png" width="550">
+<img src="./assets/media/thiago-all-nasal.png" width="700">
 
 ## More examples (in Praat)
 
@@ -514,7 +584,7 @@ Kubeo all-"oral" with voiced consonants: [bedebo] 'duck'
 * Nasal channel  suggests some slight velic opening ("leakage") during voiced stop closure
 * Enhancement to voicing?
 
-<img src="./assets/media/thiago-all-oral.png" width="550">
+<img src="./assets/media/thiago-all-oral.png" width="700">
 
 
 ## More examples (in Praat)
@@ -524,7 +594,7 @@ Kubeo [nɨ̃kakɨ] 'I went' with a voiceless stop (and a variety of other segmen
 * No velic leakage during the [k]
 * Unlike for, say, [b] or [d] in the previous slide
 
-<img src="./assets/media/thiago-mixed.png" width="550">
+<img src="./assets/media/thiago-mixed.png" width="700">
 
 
 # Airflow "zero" recordings
