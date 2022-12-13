@@ -1,0 +1,1031 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css" integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/fontawesome.css" integrity="sha384-1rquJLNOM3ijoueaaeS5m+McXPJCGdr5HcA03/VHXxcp2kX2sUrQDmFc3jR5i/C7" crossorigin="anonymous">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+
+  <meta name="generator" content="pandoc" />
+
+  <meta name="author" content="23 March 2022  UC Shattuck Plaza" />
+
+  <title>Phonetic annotation: the basics and the not-so-basics [and airflow]</title>
+
+  <style type="text/css">
+
+      code{white-space: pre-wrap;}
+
+      span.smallcaps{font-variant: small-caps;}
+
+      span.underline{text-decoration: underline;}
+
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+
+  </style>
+
+  <link rel="stylesheet" type="text/css" media="screen, projection, print"
+
+    href="assets/styles/slidy.css" />
+
+  <script src="assets/scripts/slidy.js"
+
+    charset="utf-8" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div class="slide titlepage">
+
+  <h1 class="title">Phonetic annotation: the basics and the not-so-basics [and airflow]</h1>
+
+  <p class="author">
+
+23 March 2022<br/> UC Shattuck Plaza
+
+  </p>
+
+  <p class="date">Matthew Faytak (Univ. at Buffalo)<br/></p>
+
+</div>
+
+<div id="overview" class="slide section level2">
+
+<h1>Overview</h1>
+
+<p>Annotation in Praat</p>
+
+<ul>
+
+<li>Navigating Praat and TextGrids</li>
+
+<li>Placing boundaries using waveforms and spectrograms</li>
+
+<li>Choosing (and regularizing) labels</li>
+
+<li>Miscellaneous tips</li>
+
+</ul>
+
+<p>Troubleshooting the airflow records</p>
+
+</div>
+
+<div id="the-task" class="slide section level2">
+
+<h1>The task</h1>
+
+<p>The task of annotation is basically assigning <strong>text labels</strong> to <strong>bounded spans</strong> of an audio file,</p>
+
+<ul>
+
+<li>Without these, we can’t do any kind of analysis</li>
+
+<li>Scripts generally can’t find labels or boundaries <em>for</em> us</li>
+
+<li>We’ll discuss <em>forced alignment</em> at the end, which can do some of these things but requires very specific pre-conditions</li>
+
+</ul>
+
+</div>
+
+<div id="the-task-1" class="slide section level2">
+
+<h1>The task</h1>
+
+<p>This is <strong>different</strong> from the annotation task given to you in 2019</p>
+
+<ul>
+
+<li>We are not manually annotating oral/nasal airflow maxima or minima (etc)
+
+<ul>
+
+<li>This will be left to scripts</li>
+
+<li>Some of it will be replaced with flow volume/rate means or trajectory modeling</li>
+
+</ul></li>
+
+<li>We are not dedicating specific tiers to each
+
+<ul>
+
+<li>Just segments</li>
+
+<li>Tiers for subsegments if desired (flexible)</li>
+
+</ul></li>
+
+<li>No point tiers (at least not required)</li>
+
+</ul>
+
+<p>Pros: less manual annotation by fieldworkers; more time to dedicate to other things</p>
+
+<p>Cons: segmentation becomes very important, must be fairly systematic</p>
+
+</div>
+
+<div id="your-work-setting" class="slide section level2">
+
+<h1>Your work setting</h1>
+
+<p>We are assuming some aspects of your work setting and inputs/outputs, for quality purposes:</p>
+
+<ul>
+
+<li>Use <strong>headphones</strong> to listen</li>
+
+<li>Use your ears <em>and</em> your instrumental displays to segment</li>
+
+<li>Use <strong>Praat</strong>
+
+<ul>
+
+<li>Why not ELAN? You need a spectrogram; better waveform</li>
+
+<li>Praat is also very similar to ELAN in its general structure</li>
+
+</ul></li>
+
+<li>Use <strong>TextGrids</strong> (.TextGrid format)
+
+<ul>
+
+<li>Very similar to ELAN .eaf files</li>
+
+</ul></li>
+
+</ul>
+
+</div>
+
+<div id="use-the-entire-file" class="slide section level2">
+
+<h1>Use the <em>entire</em> file</h1>
+
+<p>We suggest using <strong>all channels</strong> of the recording (including airflow) to annotate</p>
+
+<ul>
+
+<li>The airflow masks exert an overall “muffling” effect on the acoustic signal</li>
+
+<li>Reduced amplitude of high-frequency energy: less energy in fricatives, affricates, stop bursts</li>
+
+<li><strong>Oral airflow</strong> may be more reliable than the audio record for the timing of events for fricatives, stops, and affricates</li>
+
+</ul>
+
+<p>But be careful not to draw boundaries solely based on <strong>nasal airflow</strong></p>
+
+<ul>
+
+<li>Using nasal airflow risks circularity</li>
+
+<li>“I defined nasal vowels as vowel intervals with high nasal airflow” … “we find that nasal vowels have increased airflow”
+
+<ul>
+
+<li>Of course they do!</li>
+
+</ul></li>
+
+</ul>
+
+</div>
+
+<div id="basic-praat" class="title-slide slide section level1"><h1>Basic Praat</h1></div><div id="object-window" class="slide section level2">
+
+<h1>Object window</h1>
+
+<p>Praat opens with <strong>Objects</strong> and <strong>drawing</strong> windows; you can generally ignore the drawing window and focus on the object window</p>
+
+<ul>
+
+<li>Note that I capitalize objects as Praat does (Sound, TextGrid, LongSound, etc)</li>
+
+</ul>
+
+<p>Praat obligatorily interacts with objects through <em>selection</em></p>
+
+<ul>
+
+<li>For example, the following options become available if you open a Sound and select it</li>
+
+</ul>
+
+<p><img src="./assets/media/praat-Sound.png" width="600"></p>
+
+</div><div id="saving-from-the-objects-window" class="slide section level2">
+
+<h1>Saving from the Objects window</h1>
+
+<p>The Objects window stores objects in memory but doesn’t save them to your system. You must <strong>save them</strong> or your progress will be lost</p>
+
+<ul>
+
+<li>In nearly all cases, you will be creating, editing, and saving TextGrid objects rather than Sounds</li>
+
+<li>More on TextGrids in a bit</li>
+
+</ul>
+
+<p><img src="./assets/media/praat-save-Sound.png" width="600"></p>
+
+</div><div id="accessing-the-manual" class="slide section level2">
+
+<h1>Accessing the manual</h1>
+
+<p>Finally, there is a <strong>manual</strong> accessible from the Objects window (and several other places)</p>
+
+<p>If you have minor issues with Praat, you can ask me, but try to check the manual first</p>
+
+<p><img src="./assets/media/praat-manual.png" width="500"> <img src="./assets/media/praat-manual-search.png" width="500"></p>
+
+</div><div id="view-and-edit-window" class="slide section level2">
+
+<h1>View and Edit window</h1>
+
+<p>If you select (an) editable object(s) and choose “View and Edit”, the window where we will do most of our work opens</p>
+
+<ul>
+
+<li>Here, I’ve selected a matching Sound and TextGrid (which already contains some annotations)</li>
+
+</ul>
+
+<p><img src="./assets/media/praat-view-edit.png" width="600"></p>
+
+</div><div id="textgrids" class="slide section level2">
+
+<h1>TextGrids</h1>
+
+<p>Most of our annotations will be done as TextGrids</p>
+
+<ul>
+
+<li>Create by selecting “Annotate”, “To TextGrid”, and filling in tier names you want</li>
+
+</ul>
+
+<p><img src="./assets/media/praat-annotate.png" width="500"> <img src="./assets/media/praat-make-tg.png" width="500"></p>
+
+</div><div id="tiers-and-their-contents" class="slide section level2">
+
+<h1>Tiers and their contents</h1>
+
+<p>TextGrids contain <strong>tiers</strong>, which in turn contain <strong>intervals</strong> or <strong>points</strong></p>
+
+<ul>
+
+<li>TextGrids are automatically the same length as their associated Sounds</li>
+
+<li>Intervals have a start time, end time, and label</li>
+
+</ul>
+
+<p>[picture illustrating]</p>
+
+<ul>
+
+<li>Points have a time and a label</li>
+
+</ul>
+
+<p>[picture illustrating]</p>
+
+<ul>
+
+<li>Both tier types can be written directly into</li>
+
+</ul>
+
+</div><div id="points-vs.-intervals" class="slide section level2">
+
+<h1>Points vs. intervals</h1>
+
+<p>The two kinds of tiers reflect different types of <strong>audio selection</strong></p>
+
+<ul>
+
+<li>Points correspond to instantaneous, single time points</li>
+
+<li>Intervals correspond to ranges of time</li>
+
+</ul>
+
+<p>Generally, in this project, we are interested in <strong>ranges</strong> corresponding to particular articulatory states, so we mostly favor using intervals</p>
+
+<ul>
+
+<li>Exceptions: flaps or stop bursts, which are more or less instantaneous</li>
+
+</ul>
+
+</div><div id="automatic-creation-of-tgs" class="slide section level2">
+
+<h1>Automatic creation of TGs</h1>
+
+<p>There are any number of basic Praat <strong>scripts</strong> out there to automatically create TextGrids with a certain tier structure</p>
+
+<ul>
+
+<li>I will demonstrate one such script here:
+
+<ul>
+
+<li>Look at each WAV name in a folder</li>
+
+<li>If no TG exists in a designated location, create it there with specified tier structure</li>
+
+<li>Open the resulting TG and</li>
+
+</ul></li>
+
+<li>Copy-paste <a href="https://github.com/mfaytak/ultramisc/blob/master/scripts/file-management/ultra_labeler.praat">the code</a> into a text file and save as [some name].praat</li>
+
+</ul>
+
+</div><div id="editing-tgs" class="slide section level2">
+
+<h1>Editing TGs</h1>
+
+<p>Efficiently adding boundaries to a TG depends on <strong>keyboard shortcuts</strong></p>
+
+<p>Zooming:</p>
+
+<ul>
+
+<li>CTRL+I, CTRL+O: zoom in and out</li>
+
+<li>CTRL+N: zoom to range/interval selected</li>
+
+<li>CTRL+A: zoom out to all</li>
+
+</ul>
+
+<p>Scrolling:</p>
+
+<ul>
+
+<li>Scroll left/right to move viewing window</li>
+
+<li>ALT+arrow key to move selection from interval to interval (or point to point)</li>
+
+</ul>
+
+</div><div id="editing-tgs-1" class="slide section level2">
+
+<h1>Editing TGs</h1>
+
+<p>Placing boundaries:</p>
+
+<ul>
+
+<li>Make a point selection and click the little circle in the tier</li>
+
+<li><em>Or</em> make a point selection and press CTRL+#
+
+<ul>
+
+<li>Where # is the tier number you want to add a boundary to</li>
+
+</ul></li>
+
+<li><em>Or</em> do CTRL+# with a range/interval selection to place both start and end times</li>
+
+<li>All of these methods can <em>time-lock</em> boundaries to a single time selection, which is desirable
+
+<ul>
+
+<li>i.e. word and phone start/end at the same time</li>
+
+</ul></li>
+
+</ul>
+
+</div><div id="playtime" class="slide section level2">
+
+<h1>Playtime</h1>
+
+<p>If you haven’t been following along, let’s take a couple of minutes to try out some of the basic annotation tricks we’ve gone over</p>
+
+<ul>
+
+<li>If you are having difficulty setting anything up, ask</li>
+
+<li>If you are completely lost, ask us and get un-lost</li>
+
+</ul>
+
+</div>
+
+<div id="choosing-labels" class="title-slide slide section level1"><h1>Choosing labels</h1></div><div id="labeling-vs-transcription" class="slide section level2">
+
+<h1>Labeling vs transcription</h1>
+
+<p>Labeling intervals/points for phonetic analysis is not, strictly speaking, <em>phonetic</em> transcription</p>
+
+<ul>
+
+<li>More like phonological transcription</li>
+
+<li>At most, broad phonetic transcription (omitting some unimportant or non-contrastive aspects of variation)</li>
+
+</ul>
+
+<p>Rather, think of these as a <em>restricted vocabulary</em> which we mark off our experimental conditions of interest</p>
+
+<ul>
+
+<li>Where our experimental conditions are segments (current segment, current segment’s environment as defined by neighboring segments, etc)</li>
+
+</ul>
+
+</div><div id="should-i-transcribe-variation" class="slide section level2">
+
+<h1>Should I transcribe variation?</h1>
+
+<p>Generally, <strong>no!</strong> Variation should <strong>emerge</strong> from the phonetic analysis rather than being imposed by our transcriptions</p>
+
+<ul>
+
+<li>Besides, detailed transcription of variation actually makes analysis <em>more difficult</em></li>
+
+<li>Script needs <em>regular, predictable</em> labels to find all segment tokens</li>
+
+<li>If not predictable, then we have to add a task of finding all the variants</li>
+
+</ul>
+
+</div><div id="socially-conditioned-variation" class="slide section level2">
+
+<h1>Socially conditioned variation</h1>
+
+<p>This includes <strong>sociolinguistic</strong> variation, which you may be noticing after your first field trip (or for a longer time)</p>
+
+<ul>
+
+<li>Again, we want the patterns of variation to <em>emerge</em> from a common annotation system shared by all varieties of the language</li>
+
+<li>Subphonemic analysis will capture the different realizations; you don’t have to do it in your transcription</li>
+
+</ul>
+
+</div><div id="example-dont" class="slide section level2">
+
+<h1>Example: don’t</h1>
+
+<p>Suppose we hear some weak voicing of /p t k/ when they are intervocalic, especially in a word which is nasalized due to harmony and where the /p t k/ are supposedly “transparent”</p>
+
+<p>So we transcribe as we go along, variously:</p>
+
+<ul>
+
+<li>/p/ in /VpV/ as [b], [b̥], [ⁿb], [ⁿp], [bp], etc.</li>
+
+<li>/p/ in /ṼpṼ/ as [b], [b̥], [ⁿb], [ⁿb̥], [ⁿp], [ⁿbp], etc.</li>
+
+</ul>
+
+<p>This is a <em>problem</em> for analysis, especially if we aren’t tracking the transcriptions we are using</p>
+
+<ul>
+
+<li>How do we know which phoneme, /b/ or /p/, is represented by, say, any given [b]?</li>
+
+<li>How do we <em>get all tokens of</em> any given phoneme if their labels aren’t consistent?</li>
+
+</ul>
+
+</div><div id="example-do" class="slide section level2">
+
+<h1>Example: do</h1>
+
+<p>In this case, even though it is counterintuitive, /p t k/ should always be given the labels <strong>p t k</strong> regardless of voicing, nasal leakage, etc</p>
+
+<ul>
+
+<li>Closer to phonemic labels than anything else</li>
+
+<li>Easy to find all /p t k/ in later analysis</li>
+
+<li>Degree of voicing, nasal leakage, etc will be found in the course of analysis of acoustic/airflow data</li>
+
+</ul>
+
+</div><div id="an-exception-harmony" class="slide section level2">
+
+<h1>An exception: harmony</h1>
+
+<p>Harmony outcomes <em>should</em> be fully specified for any segment which is described as an undergoer</p>
+
+<ul>
+
+<li>Again, use consistent, restricted labels whenever possible</li>
+
+<li>e.g. give any vowel which is <em>supposed to be</em> nasal as Ṽ regardless of perceived nasal quality</li>
+
+<li>e.g. give all voiced oral consonants /b d g/ as nasal [m n ŋ] when in a nasalized word/harmony span</li>
+
+</ul>
+
+<p>Why?</p>
+
+<ul>
+
+<li>Most “experimental” conditions for research questions are based on nasal/oral spans</li>
+
+<li>If we don’t mark output of harmony, we have to search the whole word for a trigger and apply rules to get the output… but in a script</li>
+
+</ul>
+
+</div>
+
+<div id="segmental-and-subsegmental-boundaries" class="title-slide slide section level1"><h1>Segmental and subsegmental boundaries</h1></div><div id="be-accurate" class="slide section level2">
+
+<h1>Be accurate!</h1>
+
+<p>Accurate placement of segmental boundaries is essential for analysis relating to some questions</p>
+
+<ul>
+
+<li>Closures, vowels, etc must be precisely marked off at the time points they occur at</li>
+
+<li>Failure to do this will lead to portions of other segments being spuriously included in your analysis span</li>
+
+<li>Might erroneously think a big jump in, e.g., nasal airflow occurs during a segment when it really occurs <em>before</em> or <em>after</em> it</li>
+
+</ul>
+
+<p>If you are unsure of how you’re doing, annotate a small portion of the data and <em>ask Matt</em> to check on it</p>
+
+</div><div id="voicing" class="slide section level2">
+
+<h1>Voicing</h1>
+
+<p>Visible as <strong>voice bar</strong> at bottom of spectrogram, and as periodic (repeating, regular) motion in waveform</p>
+
+<p><img src="./assets/media/tg-voice-bar.png" width="600"></p>
+
+<p><img src="./assets/media/tg-voice-bar2.png" width="350"></p>
+
+</div><div id="partial-voicing" class="slide section level2">
+
+<h1>Partial voicing</h1>
+
+<p>Segments can be partially voiced, with the voicing tending to be “carryover”</p>
+
+<ul>
+
+<li>“Carryover” voicing intervocalically, from previous vowel</li>
+
+<li>Partial devoicing (pictured below) towards end of a voiced closure</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-partial-voicing.png" width="600"></p>
+
+<ul>
+
+<li>You might annotate the timing of voicing as a <em>subsegmental</em> property to determine effect of nasality on voicing or vice-versa</li>
+
+</ul>
+
+</div><div id="voicing-and-echo" class="slide section level2">
+
+<h1>Voicing and echo</h1>
+
+<p>Don’t be fooled by echo, especially in very reverberant recordings and when low vowels or other intense sounds echo</p>
+
+<ul>
+
+<li>Echo can resemble a voicing bar extending into a following stop or fricative</li>
+
+<li>The token of /kʷ/ below is not substantially voiced, for example</li>
+
+</ul>
+
+<p><img src="./assets/media/echo-voice.png" width="600"></p>
+
+</div><div id="glottal-stop-and-creak" class="slide section level2">
+
+<h1>Glottal stop and creak</h1>
+
+<p>Glottal stop is rarely an actual stop (CITE)</p>
+
+<ul>
+
+<li>Often a period of <strong>creakiness</strong> instead
+
+<ul>
+
+<li>Vocal fold pulses further apart, often irregularly spaced</li>
+
+</ul></li>
+
+<li>Creakiness is also often associated with <strong>glottalized</strong> stops</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-glottals.png" width="700"></p>
+
+</div><div id="vowels-and-formants" class="slide section level2">
+
+<h1>Vowels and formants</h1>
+
+<p>Vowels are easily identified by their clear, high-amplitude (dark) <strong>formats</strong> with little to no frication and strong voicing</p>
+
+<ul>
+
+<li>First and second formants (F1-F2) are the major determinants of vowel quality</li>
+
+<li>Some higher formants can be weaker (lighter) for especially constricted vowels</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-formants.png" width="650"></p>
+
+</div><div id="oral-vs.-nasalized-vowels" class="slide section level2">
+
+<h1>Oral vs. nasal(ized) vowels</h1>
+
+<p>Compared to oral vowels, nasal(ized) vowels have more “smudging” of formants; noticeably weaker (lighter) F1</p>
+
+<ul>
+
+<li>(Acoustically, this is due to “antiformants” that overlap with formants and partly cancel them out)</li>
+
+<li>A very smudged “effective F1” results</li>
+
+</ul>
+
+<p><img src="./assets/media/092-nas-v-spec.png" width="650"></p>
+
+</div><div id="formant-discontinuities" class="slide section level2">
+
+<h1>Formant discontinuities</h1>
+
+<p>Many other phones have clear formants as well, but cause <strong>discontinuities</strong> in formant frequency when articulated in a sequence with vowels</p>
+
+<ul>
+
+<li>These discontinuities are useful for segmentation</li>
+
+<li>Lateral and central approximants</li>
+
+<li>Nasal stops</li>
+
+</ul>
+
+</div><div id="nasal-stops" class="slide section level2">
+
+<h1>Nasal stops</h1>
+
+<p>Abrupt loss of formant intensity visible in spectrogram; major dip in intensity in waveform, formants “smudge”, effective F1 visible (and not much else, unless very intense)</p>
+
+<p><img src="./assets/media/tg-nasal.png" width="600"></p>
+
+</div><div id="central-approximants" class="slide section level2">
+
+<h1>Central approximants</h1>
+
+<p>Gradual decrease and then rise in amplitude, formants deflect towards the approximant target and then back</p>
+
+<ul>
+
+<li>Segmenting these from neighboring vowels can be tricky; best to go by ear and pick the “halfway” point</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-central-approx.png" width="600"></p>
+
+</div><div id="laterals" class="slide section level2">
+
+<h1>Laterals</h1>
+
+<p>Most non-“dark” [l] have a sharp discontinuity in formants: formants shift; amplitude abruptly lowers a bit</p>
+
+<p>“Dark” [l] may show a more gradual change in values (and decrease in intensity) like a central approximant</p>
+
+<p><img src="./assets/media/tg-laterals.png" width="650"></p>
+
+</div><div id="plosives" class="slide section level2">
+
+<h1>Plosives</h1>
+
+<p>Multiple articulatory events; annotate these together as the plosive or annotate sub-parts, depending on your RQs</p>
+
+<ul>
+
+<li>Closure</li>
+
+<li>Release (can be annotated as a single stretch to yield <strong>voice onset time</strong>)
+
+<ul>
+
+<li>Burst (spike in waveform)</li>
+
+<li>Aspiration (“on” following vowel, but should be annotated as part of the consonant)</li>
+
+</ul></li>
+
+<li>Release ends when vowel’s normal formant structure and voicing begin</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-stop-events.png" width="600"></p>
+
+</div><div id="plosive-voicing" class="slide section level2">
+
+<h1>Plosive voicing</h1>
+
+<p>Plosives can be <strong>prevoiced</strong>, with their voicing bar plainly visible even during closure</p>
+
+<p>More commonly, voiced plosives are somewhat devoiced (recap)</p>
+
+<p><img src="./assets/media/tg-partial-voicing.png" width="600"></p>
+
+<p>Unvoiced plosives can also gain some <strong>carryover</strong> voicing from the preceding vowel: voicing not “shut off” quickly enough</p>
+
+<p><img src="./assets/media/tg-stop-events.png" width="600"></p>
+
+<ul>
+
+<li>Voicing carryover (during closure)</li>
+
+</ul>
+
+</div><div id="partially-nasal-consonants" class="slide section level2">
+
+<h1>Partially nasal consonants</h1>
+
+<p>Prenasalized stops (to take one possible example) may show oral and nasal closure portions; the transition between these can be spotted with some effort</p>
+
+<p><img src="./assets/media/tg-prenas-stop1.png" width="600"></p>
+
+<p>Another example:</p>
+
+<p><img src="./assets/media/tg-prenas-stop2.png" width="600"></p>
+
+</div><div id="affricates" class="slide section level2">
+
+<h1>Affricates</h1>
+
+<p>Like plosives, there are multiple events that could be segmented</p>
+
+<ul>
+
+<li>Similar to plosives with the addition of <strong>frication</strong> to release</li>
+
+<li>Usually not worth separating from aspiration (or possible to do so)</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-affricate-events.png" width="600"></p>
+
+</div><div id="trills-and-taps" class="slide section level2">
+
+<h1>Trills and taps</h1>
+
+<p>Usually easy to segment: quick contacts (multiple for trills, single for flaps/taps)</p>
+
+<ul>
+
+<li>Taps don’t lend themselves too well to interval segmenting, since they are so short as to be sort of instantaneous</li>
+
+<li>See the point tier below: brief closures between the tongue and palate</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-trill-flap.png" width="550"></p>
+
+</div><div id="trills-and-taps-1" class="slide section level2">
+
+<h1>Trills and taps</h1>
+
+<p>Both of these sounds can <em>fail</em>, however</p>
+
+<ul>
+
+<li>Flaps can close incompletely (intensity dip still visible)</li>
+
+<li>Trills can fail to start trilling (for aerodynamic reasons); approximant or fricative may result</li>
+
+</ul>
+
+<p><img src="./assets/media/tg-trill-flap2.png" width="550"></p>
+
+</div>
+
+<div id="airflow-troubleshooting" class="title-slide slide section level1"><h1>Airflow troubleshooting</h1></div><div id="airflow-inspection" class="slide section level2">
+
+<h1>Airflow inspection</h1>
+
+<p>In theory, <em>when you record</em>, you should be looking at your airflow records to quickly check whether there are big problems</p>
+
+<ul>
+
+<li>Mask <strong>leakage</strong> due to poor sealing (discard acq)</li>
+
+<li>Lack of <strong>separation</strong> of channels (discard acq)</li>
+
+<li>Other, more mysterious, systematic problems which we have not yet identified (save and let us know)</li>
+
+</ul>
+
+</div><div id="leakage-mask-seal-problems" class="slide section level2">
+
+<h1>Leakage / mask seal problems</h1>
+
+<p>Mask may not seal with face fully: sensors can’t sense flow changes in this case</p>
+
+<ul>
+
+<li>Slight tendency for the oral channel <em>alone</em> to be affected (in 2 datasets I’ve inspected)</li>
+
+<li>Flat or very low-amplitude traces; very low variation even when some is expected</li>
+
+<li>Or, you’ve lost a circular “screen” in one of the holes (impedes airflow enough for sensors to work with)</li>
+
+</ul>
+
+<p>An example: Kawahiva [ɛdʒupĩn] ‘climb!’</p>
+
+<p><img src="./assets/media/traces-poor-fit.png" width="550"></p>
+
+</div><div id="flow-separation-problems" class="slide section level2">
+
+<h1>Flow separation problems</h1>
+
+<p>If you get <strong>identical</strong> flow for oral and nasal channels <em>during speech</em>, then you may have a leakage problem</p>
+
+<ul>
+
+<li>Mask partition was not separating oral and nasal flow</li>
+
+</ul>
+
+<p>An extreme example: Kawahiva [tata] ‘fire’:</p>
+
+<p><img src="./assets/media/traces-bad2.png" width="550"></p>
+
+</div><div id="flow-separation-problems-1" class="slide section level2">
+
+<h1>Flow separation problems</h1>
+
+<p>A (probably) more typical example: Kawahiva [ɨtʃĩŋga] ‘sand’</p>
+
+<ul>
+
+<li>While not an <em>exact</em> copy, the channels are suspiciously similar</li>
+
+<li>Spikes in nasal airflow apparently not timed to the [ŋg]</li>
+
+</ul>
+
+<p><img src="./assets/media/traces-bad1.png" width="550"></p>
+
+<ul>
+
+<li>Good token, same word</li>
+
+<li>Spike in nasal flow, clear reduction in oral flow at the same time (during [ŋg])</li>
+
+</ul>
+
+<p><img src="./assets/media/traces-good1.png" width="550"></p>
+
+</div><div id="scale-problems" class="slide section level2">
+
+<h1>Scale problems</h1>
+
+<p>Make sure to look at <em>speech</em> when inspecting, and <em>only speech</em> (not breathing before/after)</p>
+
+<ul>
+
+<li>Breathing (especially through open vocal tract) produces big swings in airflow</li>
+
+<li>Both Praat and the post-acq display software scale airflow (and audio) displays to fill the display area
+
+<ul>
+
+<li>A big inhale/exhale will make speech look like a very small fluctuation (due to scale)</li>
+
+</ul></li>
+
+</ul>
+
+</div><div id="more-examples-in-praat" class="slide section level2">
+
+<h1>More examples (in Praat)</h1>
+
+<p>Kubeo all-nasal [mẽnẽmẽ] ‘tree sp.’</p>
+
+<ul>
+
+<li>Nasal airflow spikes during the nasal stops</li>
+
+<li>Low, even oral airflow throughout (possibly a bad oral seal)</li>
+
+</ul>
+
+<p><img src="./assets/media/thiago-all-nasal.png" width="550"></p>
+
+</div><div id="more-examples-in-praat-1" class="slide section level2">
+
+<h1>More examples (in Praat)</h1>
+
+<p>Kubeo all-“oral” with voiced consonants: [bedebo] ‘duck’</p>
+
+<ul>
+
+<li>Oral airflow spikes at stop release</li>
+
+<li>Nasal channel suggests some slight velic opening (“leakage”) during voiced stop closure</li>
+
+<li>Enhancement to voicing?</li>
+
+</ul>
+
+<p><img src="./assets/media/thiago-all-oral.png" width="550"></p>
+
+</div><div id="more-examples-in-praat-2" class="slide section level2">
+
+<h1>More examples (in Praat)</h1>
+
+<p>Kubeo [nɨ̃kakɨ] ‘I went’ with a voiceless stop (and a variety of other segments)</p>
+
+<ul>
+
+<li>No velic leakage during the [k]</li>
+
+<li>Unlike for, say, [b] or [d] in the previous slide</li>
+
+</ul>
+
+<p><img src="./assets/media/thiago-mixed.png" width="550"></p>
+
+</div>
+
+<div id="airflow-zero-recordings" class="title-slide slide section level1"><h1>Airflow “zero” recordings</h1></div><div id="zero-recording-method-reminder" class="slide section level2">
+
+<h1>Zero recording method (reminder)</h1>
+
+<p>Take a zero recording before a session starts; take another when you’re finished</p>
+
+<ol style="list-style-type: decimal">
+
+<li>Turn on/plug in equipment and leave in place for 15+ minutes <em>beforehand</em></li>
+
+<li>Set mask <em>on a table</em>, in an area sheltered from wind, and move some distance away from it</li>
+
+<li><em>Sit still</em> (no one should walk past while recording)</li>
+
+<li>Run the zero record command line prompt per instructions</li>
+
+<li>Check the record to ensure there are no big fluctuations in airflow level</li>
+
+</ol>
+
+<p>If you take a long break, consider <em>repeating</em> the zero recording when you restart</p>
+
+<ul>
+
+<li>Nothing wrong with having several zero recordings</li>
+
+</ul>
+
+</div><div id="inspection-of-zero-recordings" class="slide section level2">
+
+<h1>Inspection of zero recordings</h1>
+
+<p>An open question: what kind of fluctuations in “zero levels” exist, <em>associated with the same session</em></p>
+
+<ul>
+
+<li>Are there rather large differences (fluctuations on the scale of minutes or hours) in zero offset?</li>
+
+<li>Or are these much slower?</li>
+
+<li>Or are they basically nonexistent?</li>
+
+</ul>
+
+<p>Let’s take a few minutes to pull out our files and inspect zero files to determine answers</p>
+
+</div>
+
+</body>
+
+</html>
